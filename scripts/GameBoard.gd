@@ -2,11 +2,11 @@
 
 extends Node2D
 
-var grid_size = Vector2(7, 11)
+var grid_size = Vector2(13, 7)
 var colors = [Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE]
 var board = []
 var original_colors = []
-var cell_size = Vector2(128, 128)  # 设置每个格子的大小
+var cell_size = Vector2(128, 128)  # 格子大小
 
 func _ready():
 	randomize()
@@ -14,7 +14,7 @@ func _ready():
 
 func generate_game_board():
 	board = []
-	original_colors = []  # 初始化原始颜色数组
+	original_colors = []  # 初始化原始顏色數組
 	for y in range(grid_size.y):
 		var row = []
 		var original_row = []
@@ -28,12 +28,12 @@ func generate_game_board():
 	generate_continuous_color_areas()
 	fill_remaining_colors()
 	
-	# 复制 board 到 original_colors
+	# 複製 board 到 original_colors
 	for y in range(grid_size.y):
 		for x in range(grid_size.x):
 			original_colors[y][x] = board[y][x]
 			
-	queue_redraw()  # 请求重新绘制
+	queue_redraw()  # 重新繪製
 	print("Game board generated")
 
 func generate_random_black_points():
@@ -60,7 +60,6 @@ func find_valid_start_position():
 		for x in range(grid_size.x):
 			if board[y][x] == null:
 				valid_positions.append(Vector2(x, y))
-
 	if valid_positions.size() > 0:
 		return valid_positions[randi() % valid_positions.size()]
 	return null
@@ -68,7 +67,6 @@ func find_valid_start_position():
 func generate_area(start_pos, color, size):
 	var positions = [start_pos]
 	board[start_pos.y][start_pos.x] = color
-
 	for _i in range(size - 1):
 		var next_pos = get_next_valid_position(positions)
 		if next_pos:
@@ -80,13 +78,11 @@ func generate_area(start_pos, color, size):
 func get_next_valid_position(positions):
 	var directions = [Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)]
 	var valid_positions = []
-
 	for pos in positions:
 		for dir in directions:
 			var new_pos = pos + dir
 			if is_valid_position(new_pos) and board[new_pos.y][new_pos.x] == null:
 				valid_positions.append(new_pos)
-
 	if valid_positions.size() > 0:
 		return valid_positions[randi() % valid_positions.size()]
 	return null
@@ -101,10 +97,16 @@ func fill_remaining_colors():
 				board[y][x] = colors[randi() % colors.size()]
 
 func set_cell_color(pos, color):
-	board[pos.y][pos.x] = color
-	queue_redraw()
-	
-func get_original_color(pos):  # 新增：获取原始颜色的方法
+	if is_valid_position(pos):
+		board[pos.y][pos.x] = color
+		queue_redraw()
+
+func get_cell_color(pos):
+	if is_valid_position(pos):
+		return board[pos.y][pos.x]
+	return Color.BLACK
+
+func get_original_color(pos):
 	if is_valid_position(pos):
 		return original_colors[pos.y][pos.x]
 	return Color.BLACK
@@ -113,6 +115,12 @@ func _draw():
 	for y in range(grid_size.y):
 		for x in range(grid_size.x):
 			var rect = Rect2(x * cell_size.x, y * cell_size.y, cell_size.x, cell_size.y)
-			var color = Color.WHITE if board[y][x] == null else board[y][x]
 			draw_rect(rect, board[y][x])
-			draw_rect(rect, Color.BLACK, false)  # 绘制格子边框
+			draw_rect(rect, Color.BLACK, false)  # 繪製格子邊框
+
+func _unhandled_input(event):
+	if event is InputEventKey and event.pressed:
+		print("Key event received in GameBoard:", event.as_text())
+		if event.keycode == KEY_Z:
+			$PathDrawer.undo_last_point()
+		get_viewport().set_input_as_handled()  # 防止事件進一步傳播

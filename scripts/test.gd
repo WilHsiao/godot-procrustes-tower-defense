@@ -4,9 +4,11 @@ extends Node2D
 
 var game_board
 var current_path = []
+var preview_path = []
 var is_drawing = false
 var cell_size = Vector2(128, 128)  # 與 GameBoard.gd 的尺寸一致
-var preview_color = Color(1, 1, 1, 1)  # 最後一個是透明度白色
+var preview_color = Color(1, 1, 1, 0.5)  # 最後一個是透明度白色
+var confirmed_color = Color.WHITE
 
 func _ready():
 	print("PathDrawer is ready")
@@ -26,6 +28,7 @@ func _unhandled_input(event):
 			cancel_drawing()
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and is_drawing:
+		print("Mouse motion event received in PathDrawer:", event.position)  # Debug output
 		continue_drawing(event.position)
 		get_viewport().set_input_as_handled()
 	
@@ -34,72 +37,56 @@ func _unhandled_input(event):
 func start_drawing(position):
 	is_drawing = true
 	current_path.clear()
+	preview_path.clear()
 	add_point_to_path(position)
 
 func stop_drawing():
 	is_drawing = false
-	process_path()
+	confirm_preview_path()
 
 func continue_drawing(position):
 	add_point_to_path(position)
 
 func add_point_to_path(position):
 	var grid_pos = (position / cell_size).floor()
-	if game_board.is_valid_position(grid_pos) and game_board.get_cell_color(grid_pos) != Color.BLACK:
+	if is_valid_next_point(grid_pos):
 		if current_path.is_empty() or grid_pos != current_path[-1]:
-			if current_path.is_empty() or are_adjacent(grid_pos, current_path[-1]):
-				current_path.append(grid_pos)
+			current_path.append(grid_pos)
+			game_board.set_cell_color(grid_pos, preview_color)
+			print("Added point to path:", grid_pos)  # Debug output
 
-func process_path():
-	if current_path.size() < 2:
-		return
-	var valid_path = []
-	for i in range(current_path.size()):
-		var pos = current_path[i]
-		if game_board.get_cell_color(pos) != Color.BLACK:
-			if valid_path.is_empty() or are_adjacent(pos, valid_path[-1]):
-				valid_path.append(pos)
-	
-	update_game_board(valid_path)
-	current_path = valid_path  # 更新 current_path 為有效路徑
+func is_valid_next_point(pos):
+	if not game_board.is_valid_position(pos) or game_board.get_cell_color(pos) == Color.BLACK:
+		return false
+	if current_path.is_empty() or are_adjacent(pos, current_path[-1]):
+		return true
+	return false
+
+func confirm_preview_path():
+	for pos in current_path:
+		game_board.set_cell_color(pos, confirmed_color)
+	preview_path.clear()
 
 func are_adjacent(pos1, pos2):
 	return (pos1 - pos2).length() == 1
-
-func update_game_board(path):
-	if game_board:
-		for pos in path:
-			if game_board.get_cell_color(pos) != Color.BLACK:
-				game_board.set_cell_color(pos, Color.WHITE)
-	queue_redraw()
 
 func cancel_drawing():
 	for pos in current_path:
 		if game_board.get_cell_color(pos) != Color.BLACK:
 			game_board.set_cell_color(pos, game_board.get_original_color(pos))
 	current_path.clear()
+	preview_path.clear()
 	queue_redraw()
 
 func undo_last_point():
 	print("Attempting to undo last point")
-	sync_path_with_board()  # 同步路徑和遊戲板狀態
 	if current_path.size() > 0:
 		var removed_point = current_path.pop_back()
-		print("Undo: Removed last point. Current path size: ", current_path.size())
+		print("Undo: Removed last point at ", removed_point, ". Current path size: ", current_path.size())
 		game_board.set_cell_color(removed_point, game_board.get_original_color(removed_point))
 		queue_redraw()
 	else:
 		print("Undo: No points to remove")
-
-func sync_path_with_board():
-	var synced_path = []
-	for y in range(game_board.grid_size.y):
-		for x in range(game_board.grid_size.x):
-			var pos = Vector2(x, y)
-			if game_board.get_cell_color(pos) == Color.WHITE:
-				synced_path.append(pos)
-	current_path = synced_path
-	print("Path synced with board. Current path size: ", current_path.size())
 
 func _draw():
 	if current_path.size() < 2:
@@ -108,10 +95,8 @@ func _draw():
 	for i in range(1, current_path.size()):
 		var from = current_path[i-1] * cell_size + cell_size / 2
 		var to = current_path[i] * cell_size + cell_size / 2
-		draw_line(from, to, preview_color, 4.0)  # 使用半透明颜色和更粗的线条
+		draw_line(from, to, preview_color, 4.0)
 		
-		# 在每個轉折點繪製一個圓
 		draw_circle(from, 5, preview_color)
-	
-	# 在路徑的最後一個點繪製一個圓
+		
 	draw_circle(current_path[-1] * cell_size + cell_size / 2, 5, preview_color)

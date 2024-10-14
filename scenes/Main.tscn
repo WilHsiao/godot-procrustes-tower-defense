@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_73a3d"]
 [ext_resource type="Script" path="res://scripts/GameBoard.gd" id="2_xspbp"]
-[ext_resource type="Script" path="res://scripts/PathDrawer.gd" id="3_c0lkg"]
+[ext_resource type="Script" path="res://scripts/test.gd" id="3_fr7bk"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_73a3d")
@@ -11,4 +11,4 @@ script = ExtResource("1_73a3d")
 script = ExtResource("2_xspbp")
 
 [node name="PathDrawer" type="Node2D" parent="GameBoard"]
-script = ExtResource("3_c0lkg")
+script = ExtResource("3_fr7bk")
