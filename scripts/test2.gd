@@ -11,7 +11,7 @@ var is_drawing = false
 var cell_size = Vector2(128, 128)  # 與 GameBoard.gd 的尺寸一致
 var preview_color = Color(1, 1, 1, 0.5)  # 最後一個是透明度白色
 var confirmed_color = Color.WHITE
-var board_offset = Vector2(0, 0)  # 與 GameBoard 中的偏移相同
+var board_offset = Vector2(0, -128)  # 與 GameBoard 中的偏移相同
 
 func _ready():
 	print("PathDrawer is ready")

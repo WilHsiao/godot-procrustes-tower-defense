@@ -7,10 +7,49 @@ var colors = [Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.PURPLE]
 var board = []
 var original_colors = []
 var cell_size = Vector2(128, 128)  # 格子大小
+var board_offset = Vector2(0, 0)  # 向上偏移一個格子的高度
+
+@onready var generate_towers_button = $GenerateTowersButton
+@onready var tower_generator = $TowerGenerator
 
 func _ready():
 	randomize()
 	generate_game_board()
+	
+	# 連接按鈕的點擊事件
+	if generate_towers_button:
+		generate_towers_button.connect("pressed", Callable(self, "_on_generate_towers_button_pressed"))
+	else:
+		print("Error: GenerateTowersButton not found")
+	
+	# 確保 PathDrawer 節點已經準備好
+	#await get_tree().create_timer(0.1).timeout
+	#
+	#if has_node("PathDrawer"):
+		#var path_drawer = get_node("PathDrawer")
+		#if path_drawer.has_signal("path_completed"):
+			#path_drawer.connect("path_completed", Callable(self, "_on_path_completed"))
+		#else:
+			#print("Error: PathDrawer does not have 'path_completed' signal")
+	#else:
+		#print("Error: PathDrawer node not found")
+#
+#func _on_path_completed():
+	#print("Path completed, generating towers...")
+	#generate_towers()
+
+func _on_generate_towers_button_pressed():
+	print("Generate Towers button pressed")
+	if tower_generator:
+		tower_generator.generate_towers()
+	else:
+		print("Error: TowerGenerator not found")
+
+func generate_towers():
+	if has_node("TowerGenerator"):
+		$TowerGenerator.generate_towers()
+	else:
+		print("Error: TowerGenerator node not found")
 
 func generate_game_board():
 	board = []
@@ -114,7 +153,12 @@ func get_original_color(pos):
 func _draw():
 	for y in range(grid_size.y):
 		for x in range(grid_size.x):
-			var rect = Rect2(x * cell_size.x, y * cell_size.y, cell_size.x, cell_size.y)
+			var rect = Rect2(
+				x * cell_size.x + board_offset.x, 
+				y * cell_size.y + board_offset.y, 
+				cell_size.x, 
+				cell_size.y
+			)
 			draw_rect(rect, board[y][x])
 			draw_rect(rect, Color.BLACK, false)  # 繪製格子邊框
 

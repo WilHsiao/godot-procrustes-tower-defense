@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bbtf58vqu6b3d"]
+[gd_scene load_steps=5 format=3 uid="uid://bbtf58vqu6b3d"]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_73a3d"]
 [ext_resource type="Script" path="res://scripts/GameBoard.gd" id="2_xspbp"]
-[ext_resource type="Script" path="res://scripts/test.gd" id="3_fr7bk"]
+[ext_resource type="Script" path="res://scripts/PathDrawer.gd" id="3_c0lkg"]
+[ext_resource type="Script" path="res://scripts/TowerGenerator.gd" id="4_keo54"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_73a3d")
@@ -11,4 +12,12 @@ script = ExtResource("1_73a3d")
 script = ExtResource("2_xspbp")
 
 [node name="PathDrawer" type="Node2D" parent="GameBoard"]
-script = ExtResource("3_fr7bk")
+script = ExtResource("3_c0lkg")
+
+[node name="TowerGenerator" type="Node" parent="GameBoard"]
+script = ExtResource("4_keo54")
+
+[node name="GenerateTowersButton" type="Button" parent="GameBoard"]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "generator tower"
