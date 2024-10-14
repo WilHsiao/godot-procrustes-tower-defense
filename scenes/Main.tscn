@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://bbtf58vqu6b3d"]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_73a3d"]
+[ext_resource type="Script" path="res://scripts/GameBoard.gd" id="2_xspbp"]
+[ext_resource type="Script" path="res://scripts/PathDrawer.gd" id="3_c0lkg"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_73a3d")
+
+[node name="GameBoard" type="Node2D" parent="."]
+script = ExtResource("2_xspbp")
+
+[node name="PathDrawer" type="Node2D" parent="GameBoard"]
+script = ExtResource("3_c0lkg")
