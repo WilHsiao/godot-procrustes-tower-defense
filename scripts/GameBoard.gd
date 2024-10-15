@@ -21,22 +21,6 @@ func _ready():
 		generate_towers_button.connect("pressed", Callable(self, "_on_generate_towers_button_pressed"))
 	else:
 		print("Error: GenerateTowersButton not found")
-	
-	# 確保 PathDrawer 節點已經準備好
-	#await get_tree().create_timer(0.1).timeout
-	#
-	#if has_node("PathDrawer"):
-		#var path_drawer = get_node("PathDrawer")
-		#if path_drawer.has_signal("path_completed"):
-			#path_drawer.connect("path_completed", Callable(self, "_on_path_completed"))
-		#else:
-			#print("Error: PathDrawer does not have 'path_completed' signal")
-	#else:
-		#print("Error: PathDrawer node not found")
-#
-#func _on_path_completed():
-	#print("Path completed, generating towers...")
-	#generate_towers()
 
 func _on_generate_towers_button_pressed():
 	print("Generate Towers button pressed")
