@@ -13,15 +13,12 @@ func _ready():
 	game_board = get_parent()
 	if not game_board:
 		push_error("MonsterManager: Parent node is not set")
-	else:
-		print("MonsterManager: GameBoard reference set successfully")
 
 func start_new_run():
 	current_run += 1
 	create_monster()
 
 func create_monster():
-	print("Creating monster for run: ", current_run)
 	var rand = randf() * 100
 	var monster_type = "一般怪物"
 	var health = current_run * 30
@@ -54,39 +51,25 @@ func create_monster():
 		reward = 30
 		color = Color(1, 0.843, 0)  # 金色
 
-	if monster:
-		monster.queue_free()
 	monster = monster_scene.instantiate()
-	if not monster:
-		push_error("Failed to instantiate monster scene")
-		return
-
+	monster.initialize(monster_type, health, reward, color, speed)
 	add_child(monster)
-	print("Monster added as child to MonsterManager")
 	
-	if monster.has_method("initialize"):
-		monster.initialize(monster_type, health, reward, color, speed)
-		print("Monster initialized with type: ", monster_type)
-	else:
-		push_error("Monster doesn't have initialize method")
-
 	spawn_monster()
 
 func spawn_monster():
-	print("Attempting to spawn monster")
-	if not monster:
-		push_error("No monster to spawn")
-		return
-
-	var spawn_point = game_board.find_leftmost_white_cell()
-	if spawn_point != Vector2i(-1, -1):
+	var spawn_points = game_board.find_white_cells_in_range(Vector2i(0, 0), Vector2i(12, 0))
+	if spawn_points.size() > 0:
+		var spawn_point = spawn_points[randi() % spawn_points.size()]
 		var world_position = game_board.map_to_world(spawn_point)
-		monster.global_position = world_position
-		print("Monster spawned at grid position: ", spawn_point)
-		print("Monster world position: ", world_position)
-		print("Monster global position: ", monster.global_position)
+		
+		if monster:
+			monster.position = world_position
+			print("Monster spawned at world position: ", world_position)
+		else:
+			print("Error: Monster not initialized")
 	else:
-		push_error("No valid spawn point found")
+		print("No valid spawn points found")
 
 func move_monster():
 	if monster and monster.health > 0:
@@ -115,10 +98,3 @@ func update_monster_state():
 			print("Regenerative monster healed for ", current_run, " health.")
 		# 更新怪物的视觉表现
 		monster.update_visual()
-
-func reset():
-	if monster:
-		monster.queue_free()
-	monster = null
-	current_run = 0
-	print("MonsterManager has been reset")

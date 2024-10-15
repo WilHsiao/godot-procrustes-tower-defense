@@ -12,6 +12,9 @@ var board_offset = Vector2(0, 0)  # 向上偏移一個格子的高度
 @onready var generate_towers_button = $GenerateTowersButton
 @onready var tower_generator = $TowerGenerator
 
+@onready var generate_monster_button = $GenerateMonsterButton
+@onready var monster_manager = $MonsterManager
+
 func _ready():
 	randomize()
 	generate_game_board()
@@ -21,6 +24,11 @@ func _ready():
 		generate_towers_button.connect("pressed", Callable(self, "_on_generate_towers_button_pressed"))
 	else:
 		print("Error: GenerateTowersButton not found")
+	
+	if generate_monster_button:
+		generate_monster_button.connect("pressed", Callable(self, "_on_generate_monster_button_pressed"))
+	else:
+		print("Error: GenerateMonsterButton not found")
 
 func _on_generate_towers_button_pressed():
 	print("Generate Towers button pressed")
@@ -28,6 +36,13 @@ func _on_generate_towers_button_pressed():
 		tower_generator.generate_towers()
 	else:
 		print("Error: TowerGenerator not found")
+
+func _on_generate_monster_button_pressed():
+	print("Generate Monster button pressed")
+	if monster_manager:
+		monster_manager.create_monster()
+	else:
+		print("Error: MonsterManager not found")
 
 func generate_towers():
 	if has_node("TowerGenerator"):
