@@ -1,17 +1,17 @@
 [gd_scene load_steps=7 format=3 uid="uid://bbtf58vqu6b3d"]
 
 [ext_resource type="Script" path="res://scripts/Main.gd" id="1_73a3d"]
+[ext_resource type="Script" path="res://scripts/GameBoard.gd" id="2_jqn3j"]
 [ext_resource type="Script" path="res://scripts/PathDrawer.gd" id="3_c0lkg"]
-[ext_resource type="Script" path="res://scripts/test.gd" id="3_fr7bk"]
-[ext_resource type="Script" path="res://scripts/test2.gd" id="3_mv0kn"]
 [ext_resource type="Script" path="res://scripts/TowerGenerator.gd" id="4_keo54"]
+[ext_resource type="Script" path="res://scripts/MonsterManager.gd" id="5_rrrb7"]
 [ext_resource type="PackedScene" uid="uid://b5ap1n22nttpi" path="res://scenes/Monster.tscn" id="6_vqw1y"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_73a3d")
 
 [node name="GameBoard" type="Node2D" parent="."]
-script = ExtResource("3_mv0kn")
+script = ExtResource("2_jqn3j")
 
 [node name="PathDrawer" type="Node2D" parent="GameBoard"]
 script = ExtResource("3_c0lkg")
@@ -20,7 +20,7 @@ script = ExtResource("3_c0lkg")
 script = ExtResource("4_keo54")
 
 [node name="MonsterManager" type="Node2D" parent="GameBoard"]
-script = ExtResource("3_fr7bk")
+script = ExtResource("5_rrrb7")
 monster_scene = ExtResource("6_vqw1y")
 
 [node name="GenerateTowersButton" type="Button" parent="GameBoard"]
