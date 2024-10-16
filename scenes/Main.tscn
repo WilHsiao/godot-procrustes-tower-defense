@@ -11,7 +11,7 @@
 script = ExtResource("1_73a3d")
 
 [node name="GameBoard" type="Node2D" parent="."]
-script = ExtResource("3_fr7bk")
+script = ExtResource("3_mv0kn")
 
 [node name="PathDrawer" type="Node2D" parent="GameBoard"]
 script = ExtResource("3_c0lkg")
@@ -20,7 +20,7 @@ script = ExtResource("3_c0lkg")
 script = ExtResource("4_keo54")
 
 [node name="MonsterManager" type="Node2D" parent="GameBoard"]
-script = ExtResource("3_mv0kn")
+script = ExtResource("3_fr7bk")
 monster_scene = ExtResource("6_vqw1y")
 
 [node name="GenerateTowersButton" type="Button" parent="GameBoard"]

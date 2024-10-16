@@ -1,7 +1,9 @@
+# Main.gd
+
 extends Node2D
 
 @onready var game_board = $GameBoard
-@onready var reset_button = $ResetButton  # 确保在场景中添加了一个名为 ResetButton 的按钮节点
+@onready var reset_button = $ResetButton
 
 func _ready():
 	if game_board:

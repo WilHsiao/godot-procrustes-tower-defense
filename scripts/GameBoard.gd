@@ -40,7 +40,7 @@ func _on_generate_towers_button_pressed():
 func _on_generate_monster_button_pressed():
 	print("Generate Monster button pressed")
 	if monster_manager:
-		monster_manager.create_monster()
+		monster_manager.generate_monster()
 	else:
 		print("Error: MonsterManager not found")
 
@@ -125,7 +125,7 @@ func get_next_valid_position(positions):
 		return valid_positions[randi() % valid_positions.size()]
 	return null
 
-func is_valid_position(pos):
+func is_valid_position(pos: Vector2i) -> bool:
 	return pos.x >= 0 and pos.x < grid_size.x and pos.y >= 0 and pos.y < grid_size.y
 
 func fill_remaining_colors():
@@ -134,17 +134,17 @@ func fill_remaining_colors():
 			if board[y][x] == null:
 				board[y][x] = colors[randi() % colors.size()]
 
-func set_cell_color(pos, color):
+func set_cell_color(pos: Vector2i, color: Color):
 	if is_valid_position(pos):
 		board[pos.y][pos.x] = color
 		queue_redraw()
 
-func get_cell_color(pos):
+func get_cell_color(pos: Vector2i) -> Color:
 	if is_valid_position(pos):
 		return board[pos.y][pos.x]
 	return Color.BLACK
 
-func get_original_color(pos):
+func get_original_color(pos: Vector2i) -> Color:
 	if is_valid_position(pos):
 		return original_colors[pos.y][pos.x]
 	return Color.BLACK
@@ -160,6 +160,11 @@ func _draw():
 			)
 			draw_rect(rect, board[y][x])
 			draw_rect(rect, Color.BLACK, false)  # 繪製格子邊框
+	
+	# 添加调试绘制
+	for x in range(grid_size.x):
+		var world_pos = map_to_world(Vector2i(x, 0))
+		draw_circle(world_pos, 5, Color.RED)
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.pressed:
@@ -167,3 +172,101 @@ func _unhandled_input(event):
 		if event.keycode == KEY_Z:
 			$PathDrawer.undo_last_point()
 		get_viewport().set_input_as_handled()  # 防止事件進一步傳播
+
+func find_leftmost_white_cell() -> Vector2i:
+	for x in range(grid_size.x):
+		for y in range(grid_size.y):
+			if get_cell_color(Vector2i(x, y)) == Color.WHITE:
+				return Vector2i(x, y)
+	return Vector2i(-1, -1)  # 如果没有找到白色格子，返回无效位置
+
+func find_path_to_rightmost_white_cell(start_pos: Vector2i) -> Array:
+	var end_pos = find_rightmost_white_cell()
+	if end_pos == Vector2i(-1, -1):
+		return []
+	
+	var path = []
+	var current = start_pos
+	while current != end_pos:
+		var next = get_next_step_to(current, end_pos)
+		if next == current:  # No valid next step
+			break
+		path.append(next)
+		current = next
+	
+	return path
+
+func get_next_step_to(current: Vector2i, target: Vector2i) -> Vector2i:
+	var directions = [Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(0, -1)]
+	var best_direction = Vector2i.ZERO
+	var min_distance = INF
+	
+	for dir in directions:
+		var next = current + dir
+		if is_valid_position(next) and get_cell_color(next) != Color.BLACK:
+			var distance = next.distance_squared_to(target)
+			if distance < min_distance:
+				min_distance = distance
+				best_direction = dir
+	
+	return current + best_direction
+
+func find_rightmost_white_cell() -> Vector2i:
+	for x in range(grid_size.x - 1, -1, -1):
+		for y in range(grid_size.y):
+			if get_cell_color(Vector2i(x, y)) != Color.BLACK:
+				return Vector2i(x, y)
+	return Vector2i(-1, -1)
+
+func get_adjacent_white_cells(pos: Vector2i) -> Array:
+	var adjacent_cells = []
+	var directions = [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]
+	for dir in directions:
+		var new_pos = pos + dir
+		if is_valid_position(new_pos) and get_cell_color(new_pos) == Color.WHITE:
+			adjacent_cells.append(new_pos)
+	return adjacent_cells
+
+func is_cell_movable(pos: Vector2i) -> bool:
+	# 假设除了黑色以外的所有格子都是可移动的
+	return board[pos.y][pos.x] != Color.BLACK
+
+# 添加一个函数来将网格坐标转换为世界坐标
+func map_to_world(map_position: Vector2i) -> Vector2:
+	var x = map_position.x * cell_size.x + board_offset.x
+	var y = map_position.y * cell_size.y + board_offset.y
+	return Vector2(x, y)
+
+# 添加一个函数来将世界坐标转换为网格坐标
+func world_to_map(world_position: Vector2) -> Vector2i:
+	var x = int((world_position.x - board_offset.x) / cell_size.x)
+	var y = int((world_position.y - board_offset.y) / cell_size.y)
+	return Vector2i(x, y)
+
+func reset_board():
+	# 清除现有的板子状态
+	board.clear()
+	original_colors.clear()
+	
+	# 重新生成游戏板
+	generate_game_board()
+	
+	# 重置 PathDrawer
+	if has_node("PathDrawer"):
+		$PathDrawer.reset()
+	
+	# 重置 MonsterManager（如果存在）
+	if has_node("MonsterManager"):
+		$MonsterManager.reset()
+		$MonsterManager.start_new_run()
+	
+	# 如果有其他需要重置的内容，在这里添加
+	if monster_manager:
+		monster_manager.reset()
+	generate_game_board()
+	print("GameBoard has been reset")
+	
+	# 重新绘制游戏板
+	queue_redraw()
+	
+	print("GameBoard has been reset")

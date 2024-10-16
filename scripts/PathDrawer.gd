@@ -100,7 +100,20 @@ func _draw():
 		var from = current_path[i-1] * cell_size + cell_size / 2 + board_offset
 		var to = current_path[i] * cell_size + cell_size / 2 + board_offset
 		draw_line(from, to, preview_color, 4.0)
-		
 		draw_circle(from, 5, preview_color)
 	
 	draw_circle(current_path[-1] * cell_size + cell_size / 2 + board_offset, 5, preview_color)
+
+func reset():
+	print("Resetting PathDrawer")
+	is_drawing = false
+	current_path.clear()
+	preview_path.clear()
+	
+	# 恢复所有被修改的格子颜色
+	for pos in current_path:
+		if game_board.is_valid_position(pos):
+			game_board.set_cell_color(pos, game_board.get_original_color(pos))
+	
+	queue_redraw()
+	print("PathDrawer reset complete")

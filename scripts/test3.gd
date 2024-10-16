@@ -30,9 +30,10 @@ func initialize(type: String, hp: int, rew: int, col: Color, spd: int):
 	print("Monster initialized. Current position:", position)
 
 func move_to(new_position: Vector2):
-	print("Monster moving from", position, "to", new_position)
-	position = new_position
-	print("Monster moved. New position:", position)
+	print("Monster moving from", global_position, "to", new_position)
+	global_position = new_position
+	print("Monster moved. New position:", global_position)
+	update_visual()
 
 func take_damage(damage: int):
 	print("Monster taking damage:", damage, "Current health:", health)
