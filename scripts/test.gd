@@ -36,13 +36,63 @@ func create_monster():
 	monster = monster_scene.instantiate()
 	add_child(monster)
 	
-	var monster_type = "一般怪物"
-	var health = current_run * 30
-	var reward = 5
-	var color = Color(0.545, 0, 0)
-	var speed = 1
+	var rand = randf() * 100
+	var monster_data = {}
 	
-	monster.initialize(monster_type, health, reward, color, speed)
+	if rand < 66:
+		monster_data = {
+			"type": "一般怪物",
+			"health": current_run * 30,
+			"reward": 5,
+			"color": Color(0.545, 0, 0),  # #8B0000
+			"speed": 1
+		}
+	elif rand < 76:
+		monster_data = {
+			"type": "防禦菁英怪",
+			"health": current_run * 45,
+			"reward": 10,
+			"color": Color(0, 0, 0.545),  # #00008B
+			"speed": 1
+		}
+	elif rand < 86:
+		monster_data = {
+			"type": "速度菁英怪",
+			"health": current_run * 25,
+			"reward": 10,
+			"color": Color(0, 0.392, 0),  # #006400
+			"speed": 2
+		}
+	elif rand < 96:
+		monster_data = {
+			"type": "再生菁英怪",
+			"health": current_run * 20,
+			"reward": 10,
+			"color": Color(1, 0.6, 0),  # #ff9900
+			"speed": 1,
+			"regen": current_run
+		}
+	else:
+		monster_data = {
+			"type": "寶箱怪",
+			"health": 100,
+			"reward": 30,
+			"color": Color(1, 0.843, 0),  # #FFD700
+			"speed": 1
+		}
+	
+	monster.initialize(
+		monster_data["type"],
+		monster_data["health"],
+		monster_data["reward"],
+		monster_data["color"],
+		monster_data["speed"]
+	)
+	
+	if "regen" in monster_data:
+		monster.set_regen(monster_data["regen"])
+	
+	print("Created monster: ", monster_data["type"])
 	spawn_monster()
 	calculate_path()
 	move_timer.start(1.0)
@@ -87,9 +137,7 @@ func handle_monster_explosion():
 func update_monster_state():
 	if monster and monster.health > 0:
 		if monster.monster_type == "再生菁英怪":
-			monster.health += current_run
-			print("Regenerative monster healed for ", current_run, " health.")
-		# 更新怪物的视觉表现
+			monster.apply_regen()
 		monster.update_visual()
 
 func reset():

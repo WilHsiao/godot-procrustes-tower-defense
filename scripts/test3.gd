@@ -7,6 +7,7 @@ var health: int
 var reward: int
 var color: Color
 var speed: int
+var regen: int = 0
 
 func _ready():
 	print("Monster _ready called. Initial position:", position)
@@ -29,6 +30,15 @@ func initialize(type: String, hp: int, rew: int, col: Color, spd: int):
 	update_visual()
 	print("Monster initialized. Current position:", position)
 
+func set_regen(value: int):
+	regen = value
+	print("Regen set to:", regen)
+
+func apply_regen():
+	if monster_type == "再生菁英怪":
+		health += regen
+		print("Regenerative monster healed for", regen, "health. New health:", health)
+
 func move_to(new_position: Vector2):
 	print("Monster moving from", global_position, "to", new_position)
 	global_position = new_position
@@ -50,6 +60,5 @@ func update_visual():
 	$Label.text = str(health)
 	print("Visual update complete. ColorRect color:", $ColorRect.color, "Label text:", $Label.text)
 
-# 添加一个新的函数来打印怪物的当前状态
 func print_status():
-	print("Monster status - Type:", monster_type, "Health:", health, "Position:", position, "Color:", color)
+	print("Monster status - Type:", monster_type, "Health:", health, "Position:", global_position, "Color:", color, "Speed:", speed, "Regen:", regen)
